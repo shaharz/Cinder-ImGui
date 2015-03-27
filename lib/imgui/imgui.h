@@ -1,4 +1,4 @@
-// ImGui library v1.37 WIP
+// ImGui library v1.37
 // See .cpp file for documentation.
 // See ImGui::ShowTestWindow() for sample code.
 // Read 'Programmer guide' in .cpp for notes on how to setup ImGui in your codebase.
@@ -13,7 +13,7 @@
 #include <stdlib.h>         // NULL, malloc, free, qsort, atoi
 #include <string.h>         // memset, memmove, memcpy, strlen, strchr, strcpy, strcmp
 
-#define IMGUI_VERSION       "1.37 WIP"
+#define IMGUI_VERSION       "1.37"
 
 // Define assertion handler.
 #ifndef IM_ASSERT
@@ -45,7 +45,7 @@ typedef int ImGuiKey;               // enum ImGuiKey_
 typedef int ImGuiColorEditMode;     // enum ImGuiColorEditMode_
 typedef int ImGuiMouseCursor;       // enum ImGuiMouseCursor_
 typedef int ImGuiWindowFlags;       // enum ImGuiWindowFlags_
-typedef int ImGuiSetCond;           // enum ImGuiSetCondition_
+typedef int ImGuiSetCond;           // enum ImGuiSetCond_
 typedef int ImGuiInputTextFlags;    // enum ImGuiInputTextFlags_
 struct ImGuiTextEditCallbackData;   // for advanced uses of InputText() 
 typedef int (*ImGuiTextEditCallback)(ImGuiTextEditCallbackData *data);
@@ -162,10 +162,11 @@ namespace ImGui
 
     // Window
     // See implementation in .cpp for details
-    IMGUI_API bool          Begin(const char* name = "Debug", bool* p_opened = NULL, const ImVec2& initial_size = ImVec2(0,0), float bg_alpha = -1.0f, ImGuiWindowFlags flags = 0); // return false when window is collapsed, so you can early out in your code. passing 'bool* p_opened' displays a Close button on the upper-right corner of the window, the pointed value will be set to false when the button is pressed.
+    IMGUI_API bool          Begin(const char* name = "Debug", bool* p_opened = NULL, ImGuiWindowFlags flags = 0);                                           // return false when window is collapsed, so you can early out in your code. 'bool* p_opened' creates a widget on the upper-right to close the window (which sets your bool to false). 
+    IMGUI_API bool          Begin(const char* name, bool* p_opened, const ImVec2& size_on_first_use, float bg_alpha = -1.0f, ImGuiWindowFlags flags = 0);   // this is the older/longer API. call SetNextWindowSize() instead if you want to set a window size. For regular windows, 'size_on_first_use' only applies to the first time EVER the window is created and probably not what you want! maybe obsolete this API eventually.
     IMGUI_API void          End();
-    IMGUI_API bool          BeginChild(const char* str_id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);            // size==0.0f: use remaining window size, size<0.0f: use remaining window size minus abs(size). on each axis.
-    IMGUI_API bool          BeginChild(ImGuiID id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);                    // "
+    IMGUI_API bool          BeginChild(const char* str_id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);        // size==0.0f: use remaining window size, size<0.0f: use remaining window size minus abs(size). on each axis.
+    IMGUI_API bool          BeginChild(ImGuiID id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);                // "
     IMGUI_API void          EndChild();
     IMGUI_API ImVec2        GetContentRegionMax();                                              // window or current column boundaries, in windows coordinates
     IMGUI_API ImVec2        GetWindowContentRegionMin();                                        // window boundaries, in windows coordinates
@@ -222,6 +223,10 @@ namespace ImGui
     IMGUI_API void          SetTooltipV(const char* fmt, va_list args);
     IMGUI_API void          BeginTooltip();                                                     // use to create full-featured tooltip windows that aren't just text
     IMGUI_API void          EndTooltip();
+
+    // Popup
+    IMGUI_API void          BeginPopup(bool* p_opened);
+    IMGUI_API void          EndPopup();
 
     // Layout
     IMGUI_API void          BeginGroup();
@@ -327,7 +332,7 @@ namespace ImGui
     IMGUI_API void          SetNextTreeNodeOpened(bool opened, ImGuiSetCond cond = 0);          // set next tree node to be opened.
 
     // Selectable / Lists
-    IMGUI_API bool          Selectable(const char* label, bool selected, const ImVec2& size = ImVec2(0,0));
+    IMGUI_API bool          Selectable(const char* label, bool selected = false, const ImVec2& size = ImVec2(0,0));
     IMGUI_API bool          Selectable(const char* label, bool* p_selected, const ImVec2& size = ImVec2(0,0));
     IMGUI_API bool          ListBox(const char* label, int* current_item, const char** items, int items_count, int height_in_items = -1);
     IMGUI_API bool          ListBox(const char* label, int* current_item, bool (*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int height_in_items = -1);
@@ -353,7 +358,7 @@ namespace ImGui
 
     // Utilities
     IMGUI_API bool          IsItemHovered();                                                    // was the last item hovered by mouse?
-    IMGUI_API bool          IsItemHoveredRectOnly();                                            // was the last item hovered by mouse? even if another item is active while we are hovering this
+    IMGUI_API bool          IsItemHoveredRect();                                                // was the last item hovered by mouse? even if another item is active while we are hovering this
     IMGUI_API bool          IsItemActive();                                                     // was the last item active? (e.g. button being held, text field being edited- items that don't interact will always return false)
     IMGUI_API bool          IsAnyItemActive();                                                  // 
     IMGUI_API ImVec2        GetItemRectMin();                                                   // get bounding rect of last item
@@ -372,7 +377,7 @@ namespace ImGui
     IMGUI_API bool          IsMouseDragging(int button = 0, float lock_threshold = -1.0f);      // is mouse dragging. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
     IMGUI_API bool          IsPosHoveringAnyWindow(const ImVec2& pos);                          // is given position hovering any active imgui window
     IMGUI_API ImVec2        GetMousePos();                                                      // shortcut to ImGui::GetIO().MousePos provided by user, to be consistent with other calls
-    IMGUI_API ImVec2        GetMouseDragDelta(int button = 0, float lock_threshold = -1.0f);    // dragging amount, also see: GetItemActiveDragDelta(). if lock_threshold < -1.0f uses io.MouseDraggingThreshold
+    IMGUI_API ImVec2        GetMouseDragDelta(int button = 0, float lock_threshold = -1.0f);    // dragging amount since clicking, also see: GetItemActiveDragDelta(). if lock_threshold < -1.0f uses io.MouseDraggingThreshold
     IMGUI_API ImGuiMouseCursor GetMouseCursor();                                                // get desired cursor type, reset in ImGui::NewFrame(), this updated during the frame. valid before Render(). If you use software rendering by setting io.MouseDrawCursor ImGui will render those for you
     IMGUI_API void          SetMouseCursor(ImGuiMouseCursor type);                              // set desired cursor type
     IMGUI_API float         GetTime();
@@ -423,7 +428,8 @@ enum ImGuiWindowFlags_
     ImGuiWindowFlags_ChildWindowAutoFitX    = 1 << 10,  // For internal use by BeginChild()
     ImGuiWindowFlags_ChildWindowAutoFitY    = 1 << 11,  // For internal use by BeginChild()
     ImGuiWindowFlags_ComboBox               = 1 << 12,  // For internal use by ComboBox()
-    ImGuiWindowFlags_Tooltip                = 1 << 13   // For internal use by BeginTooltip()
+    ImGuiWindowFlags_Tooltip                = 1 << 13,  // For internal use by BeginTooltip()
+    ImGuiWindowFlags_Popup                  = 1 << 14   // For internal use by BeginPopup()
 };
 
 // Flags for ImGui::InputText()
@@ -889,7 +895,7 @@ struct ImDrawList
     IMGUI_API void  PopTextureID();
 
     // Primitives   
-    IMGUI_API void  AddLine(const ImVec2& a, const ImVec2& b, ImU32 col, float half_thickness = 0.50f);
+    IMGUI_API void  AddLine(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness = 1.0f);
     IMGUI_API void  AddRect(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners=0x0F);
     IMGUI_API void  AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners=0x0F);
     IMGUI_API void  AddTriangleFilled(const ImVec2& a, const ImVec2& b, const ImVec2& c, ImU32 col);
@@ -907,7 +913,7 @@ struct ImDrawList
     IMGUI_API void  ReserveVertices(unsigned int vtx_count);
     IMGUI_API void  AddVtx(const ImVec2& pos, ImU32 col);
     IMGUI_API void  AddVtxUV(const ImVec2& pos, ImU32 col, const ImVec2& uv);
-    IMGUI_API void  AddVtxLine(const ImVec2& a, const ImVec2& b, ImU32 col, float half_thickness = 0.50f);
+    IMGUI_API void  AddVtxLine(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness = 1.0f);
     IMGUI_API void  UpdateClipRect();
     IMGUI_API void  UpdateTextureID();
 };
