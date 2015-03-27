@@ -775,4 +775,40 @@ namespace ImGui {
 	ScopedId::~ScopedId() {
 		ImGui::PopID();
 	}
+	// helper functions copyed from imgui.cpp
+	size_t ImFormatString(char* buf, size_t buf_size, const char* fmt, ...)
+	{
+		va_list args;
+		va_start(args, fmt);
+		int w = vsnprintf(buf, buf_size, fmt, args);
+		va_end(args);
+		buf[buf_size - 1] = 0;
+		return (w == -1) ? buf_size : (size_t)w;
+	}
+	size_t ImFormatStringV(char* buf, size_t buf_size, const char* fmt, va_list args)
+	{
+		int w = vsnprintf(buf, buf_size, fmt, args);
+		buf[buf_size - 1] = 0;
+		return (w == -1) ? buf_size : (size_t)w;
+	}
+	char* ImStrdup(const char *str)
+	{
+		char *buff = (char*)ImGui::MemAlloc(strlen(str) + 1);
+		IM_ASSERT(buff);
+		strcpy(buff, str);
+		return buff;
+	}
+	int ImStricmp(const char* str1, const char* str2)
+	{
+		int d;
+		while ((d = toupper(*str2) - toupper(*str1)) == 0 && *str1) { str1++; str2++; }
+		return d;
+	}
+
+	int ImStrnicmp(const char* str1, const char* str2, int count)
+	{
+		int d = 0;
+		while (count > 0 && (d = toupper(*str2) - toupper(*str1)) == 0 && *str1) { str1++; str2++; count--; }
+		return d;
+	}
 }
