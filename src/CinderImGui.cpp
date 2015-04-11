@@ -289,8 +289,8 @@ namespace ImGui {
 		mStyle.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
 		mStyle.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
 		mStyle.Colors[ImGuiCol_ComboBg] = ImVec4(0.71f, 0.71f, 0.71f, 1.00f);
-		mStyle.Colors[ImGuiCol_CheckHovered] = ImVec4(0.57f, 0.57f, 0.57f, 1.00f);
-		mStyle.Colors[ImGuiCol_CheckActive] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+		//mStyle.Colors[ImGuiCol_CheckHovered] = ImVec4(0.57f, 0.57f, 0.57f, 1.00f);
+		//mStyle.Colors[ImGuiCol_CheckActive] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
 		mStyle.Colors[ImGuiCol_CheckMark] = ImVec4(0.22f, 0.22f, 0.22f, 0.50f);
 		mStyle.Colors[ImGuiCol_SliderGrab] = ImVec4(0.57f, 0.57f, 0.57f, 1.00f);
 		mStyle.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
@@ -332,8 +332,8 @@ namespace ImGui {
 		mStyle.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
 		mStyle.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
 		mStyle.Colors[ImGuiCol_ComboBg] = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
-		mStyle.Colors[ImGuiCol_CheckHovered] = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
-		mStyle.Colors[ImGuiCol_CheckActive] = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+		//mStyle.Colors[ImGuiCol_CheckHovered] = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
+		//mStyle.Colors[ImGuiCol_CheckActive] = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
 		mStyle.Colors[ImGuiCol_CheckMark] = ImVec4(0.22f, 0.22f, 0.22f, 0.50f);
 		mStyle.Colors[ImGuiCol_SliderGrab] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 		mStyle.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
