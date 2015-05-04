@@ -123,10 +123,10 @@ namespace ImGui {
 		mStyle.TouchExtraPadding = padding;
 		return *this;
 	}
-	ImGui::Options& ImGui::Options::autoFitPadding(const ci::Vec2f &padding) {
+	/*ImGui::Options& ImGui::Options::autoFitPadding(const ci::Vec2f &padding) {
 		mStyle.AutoFitPadding = padding;
 		return *this;
-	}
+	}*/
 	ImGui::Options& ImGui::Options::windowFillAlphaDefault(float defaultAlpha) {
 		mStyle.WindowFillAlphaDefault = defaultAlpha;
 		return *this;
@@ -205,7 +205,7 @@ namespace ImGui {
 		imGuiStyle.ItemSpacing = style.ItemSpacing;
 		imGuiStyle.ItemInnerSpacing = style.ItemInnerSpacing;
 		imGuiStyle.TouchExtraPadding = style.TouchExtraPadding;
-		imGuiStyle.AutoFitPadding = style.AutoFitPadding;
+		//imGuiStyle.AutoFitPadding = style.AutoFitPadding;
 		imGuiStyle.WindowFillAlphaDefault = style.WindowFillAlphaDefault;
 		imGuiStyle.WindowRounding = style.WindowRounding;
 		imGuiStyle.IndentSpacing = style.IndentSpacing;
