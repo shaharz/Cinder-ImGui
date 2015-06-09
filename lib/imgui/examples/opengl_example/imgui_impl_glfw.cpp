@@ -87,7 +87,6 @@ static void ImGui_ImplGlfw_RenderDrawLists(ImDrawList** const cmd_lists, int cmd
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
-    glBindTexture(GL_TEXTURE_2D, 0);
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
@@ -123,11 +122,9 @@ void ImGui_ImplGlFw_KeyCallback(GLFWwindow*, int key, int, int action, int mods)
         io.KeysDown[key] = true;
     if (action == GLFW_RELEASE)
         io.KeysDown[key] = false;
-
-    (void)mods; // Modifiers are not reliable across systems
-    io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-    io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-    io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+    io.KeyCtrl = (mods & GLFW_MOD_CONTROL) != 0;
+    io.KeyShift = (mods & GLFW_MOD_SHIFT) != 0;
+    io.KeyAlt = (mods & GLFW_MOD_ALT) != 0;
 }
 
 void ImGui_ImplGlfw_CharCallback(GLFWwindow*, unsigned int c)
@@ -259,7 +256,7 @@ void ImGui_ImplGlfw_NewFrame()
     io.MouseWheel = g_MouseWheel;
     g_MouseWheel = 0.0f;
 
-    // Hide OS mouse cursor if ImGui is drawing it
+    // Hide/show hardware mouse cursor
     glfwSetInputMode(g_Window, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
 
     // Start the frame

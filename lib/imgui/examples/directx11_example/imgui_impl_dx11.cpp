@@ -29,6 +29,13 @@ static ID3D11ShaderResourceView*g_pFontTextureView = NULL;
 static ID3D11BlendState*        g_blendState = NULL;
 static int                      VERTEX_BUFFER_SIZE = 30000;     // TODO: Make vertex buffer smaller and grow dynamically as needed.
 
+struct CUSTOMVERTEX
+{
+    float        pos[2];
+    float        uv[2];
+    unsigned int col;
+};
+
 struct VERTEX_CONSTANT_BUFFER
 {
     float        mvp[4][4];
@@ -43,12 +50,21 @@ static void ImGui_ImplDX11_RenderDrawLists(ImDrawList** const cmd_lists, int cmd
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     if (g_pd3dDeviceContext->Map(g_pVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource) != S_OK)
         return;
-    ImDrawVert* vtx_dst = (ImDrawVert*)mappedResource.pData;
+    CUSTOMVERTEX* vtx_dst = (CUSTOMVERTEX*)mappedResource.pData;
     for (int n = 0; n < cmd_lists_count; n++)
     {
         const ImDrawList* cmd_list = cmd_lists[n];
-        memcpy(vtx_dst, &cmd_list->vtx_buffer[0], cmd_list->vtx_buffer.size() * sizeof(ImDrawVert));
-        vtx_dst += cmd_list->vtx_buffer.size();
+        const ImDrawVert* vtx_src = &cmd_list->vtx_buffer[0];
+        for (size_t i = 0; i < cmd_list->vtx_buffer.size(); i++)
+        {
+            vtx_dst->pos[0] = vtx_src->pos.x;
+            vtx_dst->pos[1] = vtx_src->pos.y;
+            vtx_dst->uv[0] = vtx_src->uv.x;
+            vtx_dst->uv[1] = vtx_src->uv.y;
+            vtx_dst->col = vtx_src->col;
+            vtx_dst++;
+            vtx_src++;
+        }
     }
     g_pd3dDeviceContext->Unmap(g_pVB, 0);
 
@@ -88,7 +104,7 @@ static void ImGui_ImplDX11_RenderDrawLists(ImDrawList** const cmd_lists, int cmd
     }
 
     // Bind shader and vertex buffers
-    unsigned int stride = sizeof(ImDrawVert);
+    unsigned int stride = sizeof(CUSTOMVERTEX);
     unsigned int offset = 0;
     g_pd3dDeviceContext->IASetInputLayout(g_pInputLayout);
     g_pd3dDeviceContext->IASetVertexBuffers(0, 1, &g_pVB, &stride, &offset);
@@ -277,9 +293,9 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
 
         // Create the input layout
         D3D11_INPUT_ELEMENT_DESC localLayout[] = {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, (size_t)(&((ImDrawVert*)0)->pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, (size_t)(&((ImDrawVert*)0)->uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,     0, (size_t)(&((ImDrawVert*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, (size_t)(&((CUSTOMVERTEX*)0)->pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,     0, (size_t)(&((CUSTOMVERTEX*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, (size_t)(&((CUSTOMVERTEX*)0)->uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
 
         if (g_pd3dDevice->CreateInputLayout(localLayout, 3, g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize(), &g_pInputLayout) != S_OK)
@@ -343,7 +359,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
         D3D11_BUFFER_DESC bufferDesc;
         memset(&bufferDesc, 0, sizeof(D3D11_BUFFER_DESC));
         bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-        bufferDesc.ByteWidth = VERTEX_BUFFER_SIZE * sizeof(ImDrawVert);
+        bufferDesc.ByteWidth = VERTEX_BUFFER_SIZE * sizeof(CUSTOMVERTEX);
         bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
         bufferDesc.MiscFlags = 0;
@@ -390,7 +406,7 @@ bool    ImGui_ImplDX11_Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContex
     io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
     io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
     io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
-    io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
+    io.KeyMap[ImGuiKey_DownArrow] = VK_UP;
     io.KeyMap[ImGuiKey_Home] = VK_HOME;
     io.KeyMap[ImGuiKey_End] = VK_END;
     io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
@@ -445,9 +461,6 @@ void ImGui_ImplDX11_NewFrame()
     // io.MousePos : filled by WM_MOUSEMOVE events
     // io.MouseDown : filled by WM_*BUTTON* events
     // io.MouseWheel : filled by WM_MOUSEWHEEL events
-
-    // Hide OS mouse cursor if ImGui is drawing it
-    SetCursor(io.MouseDrawCursor ? NULL : LoadCursor(NULL, IDC_ARROW));
 
     // Start the frame
     ImGui::NewFrame();

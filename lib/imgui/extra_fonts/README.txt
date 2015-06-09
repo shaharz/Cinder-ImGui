@@ -1,9 +1,8 @@
 
  The code in imgui.cpp embeds a copy of 'ProggyClean.ttf' that you can use without any external files.
- Those are only provided as a convenience, you can load your own .TTF files.
 
 ---------------------------------
- INCLUDED FONTS
+ EXTRA FONTS FOR IMGUI
 ---------------------------------
 
  DroidSans.ttf

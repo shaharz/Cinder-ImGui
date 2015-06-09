@@ -57,12 +57,11 @@ static void ImGui_ImplDX9_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_
         }
     }
     g_pVB->Unlock();
+
     g_pd3dDevice->SetStreamSource( 0, g_pVB, 0, sizeof( CUSTOMVERTEX ) );
     g_pd3dDevice->SetFVF( D3DFVF_CUSTOMVERTEX );
 
-    // Setup render state: fixed-pipeline, alpha-blending, no face culling, no depth testing
-    g_pd3dDevice->SetPixelShader( NULL );
-    g_pd3dDevice->SetVertexShader( NULL );
+    // Setup render state: alpha-blending, no face culling, no depth testing
     g_pd3dDevice->SetRenderState( D3DRS_CULLMODE, D3DCULL_NONE );
     g_pd3dDevice->SetRenderState( D3DRS_LIGHTING, false );
     g_pd3dDevice->SetRenderState( D3DRS_ZENABLE, false );
@@ -168,7 +167,7 @@ bool    ImGui_ImplDX9_Init(void* hwnd, IDirect3DDevice9* device)
     io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
     io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
     io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
-    io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
+    io.KeyMap[ImGuiKey_DownArrow] = VK_UP;
     io.KeyMap[ImGuiKey_Home] = VK_HOME;
     io.KeyMap[ImGuiKey_End] = VK_END;
     io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
@@ -280,9 +279,6 @@ void ImGui_ImplDX9_NewFrame()
     // io.MousePos : filled by WM_MOUSEMOVE events
     // io.MouseDown : filled by WM_*BUTTON* events
     // io.MouseWheel : filled by WM_MOUSEWHEEL events
-
-    // Hide OS mouse cursor if ImGui is drawing it
-    SetCursor(io.MouseDrawCursor ? NULL : LoadCursor(NULL, IDC_ARROW));
 
     // Start the frame
     ImGui::NewFrame();
