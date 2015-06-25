@@ -36,6 +36,7 @@
 #include "cinder/Filesystem.h"
 #include "cinder/GeomIo.h"
 #include "cinder/gl/scoped.h"
+#include <boost/noncopyable.hpp>
 
 // forward declarations
 namespace cinder {
