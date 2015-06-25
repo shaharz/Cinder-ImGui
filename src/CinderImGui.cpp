@@ -439,7 +439,7 @@ void Renderer::renderDrawList( ImDrawList** const cmd_lists, int cmd_lists_count
                     uint32_t r = color >> 0 & 255;
                     
                     RenderData d;
-                    d.pos   = vec2( cmd_list->vtx_buffer[i].pos.x, cmd_list->vtx_buffer[i].pos.y );
+                    d.pos   = app::toPixels(vec2( cmd_list->vtx_buffer[i].pos.x, cmd_list->vtx_buffer[i].pos.y ));
                     d.uv    = vec2( cmd_list->vtx_buffer[i].uv.x, cmd_list->vtx_buffer[i].uv.y );
                     d.color = vec4( r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f  );
                     *data = d;
@@ -474,7 +474,12 @@ void Renderer::renderDrawList( ImDrawList** const cmd_lists, int cmd_lists_count
         while (pcmd <= pcmd_end) {
             const ImDrawCmd& cmd = *pcmd++;
             gl::ScopedTextureBind texture( GL_TEXTURE_2D, (GLuint)(intptr_t) cmd.texture_id );
-            gl::ScopedScissor scissors( cmd.clip_rect.x, (ImGui::GetIO().DisplaySize.y - cmd.clip_rect.w), (cmd.clip_rect.z - cmd.clip_rect.x), (cmd.clip_rect.w - cmd.clip_rect.y) );
+            vec4 v = cmd.clip_rect;
+            auto cx = app::toPixels(cmd.clip_rect.x),
+                cy = app::toPixels(cmd.clip_rect.y),
+                cw = app::toPixels(cmd.clip_rect.w),
+                cz = app::toPixels(cmd.clip_rect.z);
+            gl::ScopedScissor scissors( cx, (ImGui::GetIO().DisplaySize.y - cw), (cz - cx), (cw - cy) );
             
             glDrawArrays( GL_TRIANGLES, vtx_consumed, cmd.vtx_count );
             vtx_consumed += cmd.vtx_count;
@@ -754,7 +759,7 @@ void keyUp( ci::app::KeyEvent& event )
 void resize()
 {
     ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = getWindowSize();
+    io.DisplaySize = app::toPixels(getWindowSize());
 }
 
 static bool sNewFrame = false;
@@ -764,8 +769,8 @@ void render()
     //if( getElapsedFrames() == sLastFrame ) return;
     
     gl::ScopedMatrices matrices;
-    gl::ScopedViewport viewport( ivec2(0), getWindowSize() );
-    gl::setMatricesWindow( getWindowSize() );
+    gl::ScopedViewport viewport( vec2{0}, app::toPixels(getWindowSize()) );
+    gl::setMatricesWindow( app::toPixels(getWindowSize()) );
     ImGui::Render();
     
     /*static float elapsedTime    = 0.0f;
